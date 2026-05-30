@@ -13,18 +13,53 @@
 
 import tensorflow as tf
 
+# JURUS RAHASIA QA: Custom Callback
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        # Set target aman di 84.5% (0.845) agar melewati batas 83% dengan meyakinkan
+        if(logs.get('accuracy') > 0.845 and logs.get('val_accuracy') > 0.845):
+            print("\nTarget akurasi > 84.5% tercapai! Menghentikan training...")
+            self.model.stop_training = True
 
 def solution_B2():
     fashion_mnist = tf.keras.datasets.fashion_mnist
+    
+    # Memuat dataset (membaginya menjadi data latih dan data uji)
+    (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 
     # NORMALIZE YOUR IMAGE HERE
+    # Nilai piksel 0-255 diubah menjadi skala 0.0 - 1.0
+    x_train = x_train / 255.0
+    x_test = x_test / 255.0
 
     # DEFINE YOUR MODEL HERE
-    # End with 10 Neuron Dense, activated by softmax
+    model = tf.keras.models.Sequential([
+        # Input layer wajib menerima (28, 28) dan di-flatten menjadi array 1D
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        # Hidden layer untuk mengenali pola pakaian
+        tf.keras.layers.Dense(128, activation='relu'),
+        # End with 10 Neuron Dense, activated by softmax
+        tf.keras.layers.Dense(10, activation='softmax')
+    ])
 
     # COMPILE MODEL HERE
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    # Inisialisasi callback
+    callbacks = myCallback()
 
     # TRAIN YOUR MODEL HERE
+    # Menggunakan validation_data untuk mendapatkan val_accuracy
+    model.fit(
+        x_train, 
+        y_train, 
+        epochs=15, 
+        validation_data=(x_test, y_test), 
+        callbacks=[callbacks], 
+        verbose=1
+    )
 
     return model
 
