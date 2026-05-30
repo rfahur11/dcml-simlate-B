@@ -33,8 +33,8 @@ def solution_B2():
 
     # DEFINE YOUR MODEL HERE
     model = tf.keras.models.Sequential([
-        # Input layer must accept (28, 28) and be flattened to a 1D array
-        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        # Input layer must accept (28, 28, 1) and be flattened to a 1D array
+        tf.keras.layers.Flatten(input_shape=(28, 28, 1)),
         # Hidden layer to learn clothing patterns
         tf.keras.layers.Dense(128, activation='relu'),
         # End with 10 Neuron Dense, activated by softmax

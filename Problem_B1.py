@@ -35,7 +35,7 @@ def solution_B1():
     model.compile(optimizer='sgd', loss='mean_squared_error')
     
     # Train the model for 1000 epochs to safely reach MSE < 1e-3
-    model.fit(X, Y, epochs=1000, verbose=1)
+    model.fit(X, Y, epochs=2500, verbose=1)
 
     print(model.predict([-2.0, 10.0]))
     return model

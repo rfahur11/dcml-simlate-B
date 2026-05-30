@@ -62,9 +62,8 @@ def solution_B4():
     label_tokenizer = Tokenizer()
     label_tokenizer.fit_on_texts(labels) # Fit on all labels so it recognizes every class
     
-    # Subtract 1 because Tokenizer starts at 1, while sparse_categorical_crossentropy expects labels starting at 0
-    training_label_seq = np.array(label_tokenizer.texts_to_sequences(training_labels)).flatten() - 1
-    validation_label_seq = np.array(label_tokenizer.texts_to_sequences(validation_labels)).flatten() - 1
+    training_label_seq = np.array(label_tokenizer.texts_to_sequences(training_labels)).flatten() 
+    validation_label_seq = np.array(label_tokenizer.texts_to_sequences(validation_labels)).flatten()
 
     model = tf.keras.Sequential([
         # YOUR CODE HERE.
@@ -72,7 +71,7 @@ def solution_B4():
         tf.keras.layers.GlobalAveragePooling1D(),
         tf.keras.layers.Dense(24, activation='relu'),
         # YOUR CODE HERE. DO not change the last layer or test may fail
-        tf.keras.layers.Dense(5, activation='softmax')
+        tf.keras.layers.Dense(6, activation='softmax')
     ])
 
     # Make sure you are using "sparse_categorical_crossentropy" as the loss function
