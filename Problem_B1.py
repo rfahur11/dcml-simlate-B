@@ -26,15 +26,15 @@ def solution_B1():
     Y = np.array([5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0], dtype=float)
 
     # YOUR CODE HERE
-    # Membangun model regresi linear sederhana
+    # Build a simple linear regression model
     model = keras.Sequential([
         keras.layers.Dense(units=1, input_shape=[1])
     ])
     
-    # Menggunakan SGD optimizer dan MSE loss
+    # Use the SGD optimizer and MSE loss
     model.compile(optimizer='sgd', loss='mean_squared_error')
     
-    # Melatih model dengan 1000 epoch agar MSE < 1e-3 tercapai dengan aman
+    # Train the model for 1000 epochs to safely reach MSE < 1e-3
     model.fit(X, Y, epochs=1000, verbose=1)
 
     print(model.predict([-2.0, 10.0]))

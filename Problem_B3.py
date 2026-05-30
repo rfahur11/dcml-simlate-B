@@ -17,6 +17,13 @@ import tensorflow as tf
 import os
 from keras_preprocessing.image import ImageDataGenerator
 
+# Custom Callback
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        # Set target to 84% to be safely above the minimum threshold of 83%
+        if(logs.get('accuracy') > 0.84 and logs.get('val_accuracy') > 0.84):
+            print("\nTarget accuracy > 84% reached! Stopping training...")
+            self.model.stop_training = True
 
 def solution_B3():
     data_url = 'https://github.com/dicodingacademy/assets/releases/download/release-rps/rps.zip'
@@ -27,18 +34,64 @@ def solution_B3():
     zip_ref.close()
 
     TRAINING_DIR = "data/rps/"
+    
+    # Because there is no validation folder, WE MUST split it here (validation_split)
     training_datagen = ImageDataGenerator(
-        # YOUR CODE HERE)
+        rescale=1./255,
+        validation_split=0.2  # Menyisihkan 20% data untuk validasi
+    )
 
     # YOUR IMAGE SIZE SHOULD BE 150x150
     # Make sure you used "categorical"
-    train_generator=# YOUR CODE HERE
+    train_generator = training_datagen.flow_from_directory(
+        TRAINING_DIR,
+        target_size=(150, 150),
+        batch_size=32,
+        class_mode='categorical',
+        subset='training' # Menunjuk ini sebagai data latih
+    )
 
+    validation_generator = training_datagen.flow_from_directory(
+        TRAINING_DIR,
+        target_size=(150, 150),
+        batch_size=32,
+        class_mode='categorical',
+        subset='validation' # Specify this as validation data
+    )
 
-    model=tf.keras.models.Sequential([
-    # YOUR CODE HERE, end with 3 Neuron Dense, activated by softmax
+    model = tf.keras.models.Sequential([
+        # Standard CNN architecture suitable for recognizing hand gestures
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', input_shape=(150, 150, 3)),
+        tf.keras.layers.MaxPooling2D(2, 2),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D(2, 2),
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D(2, 2),
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D(2, 2),
+        
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dropout(0.5), # Prevent overfitting
+        tf.keras.layers.Dense(512, activation='relu'),
+        # YOUR CODE HERE, end with 3 Neuron Dense, activated by softmax
         tf.keras.layers.Dense(3, activation='softmax')
     ])
+
+    model.compile(optimizer='rmsprop',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    # Initialize callback
+    callbacks = myCallback()
+
+    # Train the model
+    model.fit(
+        train_generator,
+        epochs=15,
+        validation_data=validation_generator,
+        callbacks=[callbacks],
+        verbose=1
+    )
 
     return model
 
@@ -47,5 +100,5 @@ def solution_B3():
 # It will be saved automatically in your Submission folder.
 if __name__ == '__main__':
     # DO NOT CHANGE THIS CODE
-    model=solution_B3()
+    model = solution_B3()
     model.save("model_B3.h5")
